@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    jkube.io/git-url: https://github.com/andylke/jkube-app.git
+    jkube.io/git-commit: 6601f517e18d51ac9ea335bc134372073b6d274e
+    jkube.io/git-branch: master
+    jkube.io/scm-url: https://github.com/spring-projects/spring-boot/jkube-app
+    jkube.io/scm-tag: HEAD
+  labels:
+    app: jkube-app
+    provider: jkube
+    version: 0.0.1-SNAPSHOT
+    group: io.github.andylke
+  name: jkube-app
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: jkube-app
+      provider: jkube
+      group: io.github.andylke
+  template:
+    metadata:
+      annotations:
+        jkube.io/scm-url: https://github.com/spring-projects/spring-boot/jkube-app
+        jkube.io/git-url: https://github.com/andylke/jkube-app.git
+        jkube.io/scm-tag: HEAD
+        jkube.io/git-commit: 6601f517e18d51ac9ea335bc134372073b6d274e
+        jkube.io/git-branch: master
+      labels:
+        app: jkube-app
+        provider: jkube
+        version: 0.0.1-SNAPSHOT
+        group: io.github.andylke
+    spec:
+      containers:
+      - env:
+        - name: KUBERNETES_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: HOSTNAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        image: andylke/jkube-app:0.0.1-SNAPSHOT
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 180
+          successThreshold: 1
+        name: spring-boot
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9779
+          name: prometheus
+          protocol: TCP
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          successThreshold: 1
+        securityContext:
+          privileged: false

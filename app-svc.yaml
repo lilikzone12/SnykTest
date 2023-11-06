@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    jkube.io/git-url: https://github.com/andylke/jkube-app.git
+    jkube.io/git-commit: 6601f517e18d51ac9ea335bc134372073b6d274e
+    jkube.io/git-branch: master
+    jkube.io/scm-url: https://github.com/spring-projects/spring-boot/jkube-app
+    jkube.io/scm-tag: HEAD
+    prometheus.io/path: /metrics
+    prometheus.io/port: "9779"
+    prometheus.io/scrape: "true"
+  labels:
+    expose: "true"
+    app: jkube-app
+    provider: jkube
+    version: 0.0.1-SNAPSHOT
+    group: io.github.andylke
+  name: jkube-app
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: jkube-app
+    provider: jkube
+    group: io.github.andylke
+  type: LoadBalancer
